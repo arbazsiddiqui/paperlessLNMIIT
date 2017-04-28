@@ -51,6 +51,7 @@ module.exports = function (passport) {
                             Student.findOne({rollNumber : req.body.rollNumber.toLowerCase()}, function (err, stuDoc) {
                                 if (!stuDoc){
                                     var newStu = new Student();
+                                    newStu.email = email;
                                     newStu.rollNumber = req.body.rollNumber.toLowerCase();
                                     newStu.save(function (err) {
                                         if (err)
