@@ -1,5 +1,6 @@
 var User = require('../models/user');
 var Student = require('../models/student');
+var Application = require('../models/application');
 var isLoggedIn = require('../middlewares/isLoggedIn');
 
 module.exports = function (app) {
@@ -10,7 +11,9 @@ module.exports = function (app) {
       res.send(teaDoc)
     })
   });
-  
+
+
+  //API to upload grades of using CSV
   app.post('/teacher/uploadGrades', function (req, res) {
     var sub = req.body.sub;
     var file = req.body.file;
@@ -53,5 +56,66 @@ module.exports = function (app) {
         updateStudents(rN, grade)
       }
     }
-  })
-}
+  });
+
+  //API to create an application and send it for approval
+  app.post('/createapp', function (req, res) {
+    var from = req.body.from;
+    var to  = req.body.to;
+    var approval = req.body.approval;
+    var body = req.body.text;
+    var approvedStatus = false;
+    var pending = true;
+    
+    var newApp = new Application();
+    newApp.from = from;
+    newApp.to = to;
+    newApp.approval = approval;
+    newApp.body = body;
+    newApp.approvedStatus = approvedStatus;
+    newApp.pending = pending;
+    newApp.save(function (err) {
+      if (err)
+        return res.send(err);
+
+      //TODO send notification to APPROVAL
+      return res.json(newApp)
+    })
+  });
+
+  //API to approve an applicaion and send to all to people
+  app.post('/approveApp', function (req, res) {
+    var appId = req.body.id;
+    var approvedStatus = req.body.approvedStatus;
+    Application.findByIdAndUpdate(
+      appId,
+      {approvedStatus: approvedStatus, pending : false}, function (err, appDoc) {
+        if (err) {
+          console.log(err);
+          return res.json(err)
+        }
+        if(approvedStatus==true){
+          if(appDoc.to.individual.length != 0){
+            for(i=0; i<appDoc.to.individual.length; i++){
+              //TODO send to each individual mail
+            }
+          }
+          if(appDoc.to.group.length != 0){
+            for(i=0; i<appDoc.to.individual.length; i++){
+              //TODO send to each group
+            }
+          }
+        }
+      }
+    )
+  });
+
+  //API to get all the pending applications for a approval
+  app.get('/allApplications/:email', function (req, res) {
+    var email = req.params.email;
+    Application.find({approval : email, pending : true}, function (err, appDoc) {
+      return res.json(appDoc);
+    });
+  });
+
+};
