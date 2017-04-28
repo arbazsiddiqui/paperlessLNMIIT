@@ -2,7 +2,7 @@ var User = require('../models/user');
 var Student = require('../models/student');
 var Application = require('../models/application');
 var isLoggedIn = require('../middlewares/isLoggedIn');
-
+var Teacher = require('../models/teacher');
 module.exports = function (app) {
 
   app.get('/teacher/:id', isLoggedIn, function (req, res) {
@@ -118,4 +118,23 @@ module.exports = function (app) {
     });
   });
 
+  //API for editing profile and status of teacher
+  app.post('/teacher/editProfile', function (req, res) {
+    var email = req.body.email;
+    var status = req.body.status;
+    var department = req.body.department;
+    var name = req.body.name;
+    Teacher.findOne({
+      email : email
+    }, function (err, teaDoc) {
+      teaDoc.status = status;
+      teaDoc.department = department;
+      teaDoc.name = name;
+      teaDoc.save(function (err) {
+        if(err)
+          return res.send(err);
+        return res.json(teaDoc);
+      })
+    })
+  });
 };
