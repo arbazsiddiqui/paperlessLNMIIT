@@ -5,10 +5,24 @@ var isLoggedIn = require('../middlewares/isLoggedIn');
 var Teacher = require('../models/teacher');
 module.exports = function (app) {
 
-  app.get('/teacher/:id', isLoggedIn, function (req, res) {
-    var id = req.params.id;
-    User.find({role : 'teacher', _id : id}, function (err, teaDoc) {
-      res.send(teaDoc)
+  app.get('/teacher/all', function (req, res) {
+    Teacher.find({}, function (err, teachers) {
+      var result = {};
+      for(i=0; i<teachers.length; i++){
+        var key = teachers[i].department;
+        if(!result[key])
+          result[key] = [];
+        console.log(key);
+        result[key].push(teachers[i]);
+      }
+      return res.json(result)
+    })
+  });
+
+  app.get('/teacher/:email', function (req, res) {
+    var email = req.params.email;
+    Teacher.findOne({email : email}, function (err, teaDoc) {
+      return res.send(teaDoc)
     })
   });
 

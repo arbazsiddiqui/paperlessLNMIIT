@@ -5,6 +5,8 @@ var teacherSchema = mongoose.Schema({
   email : String,
   status : String,
   name : String,
+  designation : String,
+  title : String,
   department : String
 });
 

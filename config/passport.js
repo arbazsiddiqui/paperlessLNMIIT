@@ -52,6 +52,7 @@ module.exports = function (passport) {
                                 if (!stuDoc){
                                     var newStu = new Student();
                                     newStu.email = email;
+                                    newStu.name = req.body.name;
                                     newStu.rollNumber = req.body.rollNumber.toLowerCase();
                                     newStu.save(function (err) {
                                         if (err)
@@ -63,6 +64,10 @@ module.exports = function (passport) {
                         if (req.body.role == 'teacher'){
                             var newTea = new Teacher();
                             newTea.email = email;
+                            newTea.name = req.body.designation;
+                            newTea.designation = req.body.designation;
+                            newTea.title = req.body.title;
+                            newTea.department = req.body.department;
                             newTea.save(function (err) {
                                 if (err)
                                     throw err
