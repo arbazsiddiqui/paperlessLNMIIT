@@ -8,9 +8,9 @@ module.exports = function (app) {
   app.get('/teacher/all', function (req, res) {
     Teacher.find({}, function (err, teachers) {
       var result = {};
-      for(i=0; i<teachers.length; i++){
+      for (i = 0; i < teachers.length; i++) {
         var key = teachers[i].department;
-        if(!result[key])
+        if (!result[key])
           result[key] = [];
         console.log(key);
         result[key].push(teachers[i]);
@@ -21,11 +21,10 @@ module.exports = function (app) {
 
   app.get('/teacher/:email', function (req, res) {
     var email = req.params.email;
-    Teacher.findOne({email : email}, function (err, teaDoc) {
+    Teacher.findOne({email: email}, function (err, teaDoc) {
       return res.send(teaDoc)
     })
   });
-
 
   //API to upload grades of using CSV
   app.post('/teacher/uploadGrades', function (req, res) {
@@ -41,7 +40,7 @@ module.exports = function (app) {
           if (err) {
             console.error(error);
           }
-          if (stuDoc){
+          if (stuDoc) {
             stuDoc.grades[sub] = grade;
             stuDoc.markModified('grade');
             stuDoc.save(function (error, updatedstuDoc) {
@@ -62,8 +61,9 @@ module.exports = function (app) {
           }
         })
     }
-    for (var i = 0; i<grades.length; i++){
-      if (grades[i]){
+
+    for (var i = 0; i < grades.length; i++) {
+      if (grades[i]) {
         temp = grades[i].split(',');
         rN = temp[0];
         grade = temp[1];
@@ -75,15 +75,13 @@ module.exports = function (app) {
   //API to create an application and send it for approval
   app.post('/createapp', function (req, res) {
     var from = req.body.from;
-    var to  = req.body.to;
     var approval = req.body.approval;
-    var body = req.body.text;
+    var body = req.body.body;
     var approvedStatus = false;
     var pending = true;
-    
+
     var newApp = new Application();
     newApp.from = from;
-    newApp.to = to;
     newApp.approval = approval;
     newApp.body = body;
     newApp.approvedStatus = approvedStatus;
@@ -103,22 +101,13 @@ module.exports = function (app) {
     var approvedStatus = req.body.approvedStatus;
     Application.findByIdAndUpdate(
       appId,
-      {approvedStatus: approvedStatus, pending : false}, function (err, appDoc) {
+      {approvedStatus: approvedStatus, pending: false}, function (err, appDoc) {
         if (err) {
           console.log(err);
           return res.json(err)
         }
-        if(approvedStatus==true){
-          if(appDoc.to.individual.length != 0){
-            for(i=0; i<appDoc.to.individual.length; i++){
-              //TODO send to each individual mail
-            }
-          }
-          if(appDoc.to.group.length != 0){
-            for(i=0; i<appDoc.to.individual.length; i++){
-              //TODO send to each group
-            }
-          }
+        if (approvedStatus == true) {
+          //TODO send to "from"
         }
       }
     )
@@ -127,7 +116,7 @@ module.exports = function (app) {
   //API to get all the pending applications for a approval
   app.get('/allApplications/:email', function (req, res) {
     var email = req.params.email;
-    Application.find({approval : email, pending : true}, function (err, appDoc) {
+    Application.find({approval: email, pending: true}, function (err, appDoc) {
       return res.json(appDoc);
     });
   });
@@ -139,13 +128,13 @@ module.exports = function (app) {
     var department = req.body.department;
     var name = req.body.name;
     Teacher.findOne({
-      email : email
+      email: email
     }, function (err, teaDoc) {
       teaDoc.status = status;
       teaDoc.department = department;
       teaDoc.name = name;
       teaDoc.save(function (err) {
-        if(err)
+        if (err)
           return res.send(err);
         return res.json(teaDoc);
       })
